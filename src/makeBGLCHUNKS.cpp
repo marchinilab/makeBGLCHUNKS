@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   for (int s = 0; s < P.size(); s += window) {
     B.push_back(s);
     if (s == 0 && chunksEqualSize)
-      s += window;
+      s += overlap;
     E.push_back(s + window - 1);
   }
   if (E.back() >= P.size()) {
