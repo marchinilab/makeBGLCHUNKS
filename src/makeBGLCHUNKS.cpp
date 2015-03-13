@@ -110,14 +110,14 @@ int main(int argc, char **argv) {
   }
   if (E.back() >= P.size())
     E.back() = P.size() - 1;
-  if ((E.back() - B.back()) < (window / 2)) {
-    B.erase(B.begin() + B.size() - 1);
-    E.erase(E.begin() + E.size() - 1);
-    E.back() = P.size() - 1;
-  }
+
   if (hardChunkSizeLimit) {
     B.back() = P.size() - window - overlap;
     E.back() = P.size() - overlap - 1;
+  } else if ((E.back() - B.back()) < (window / 2)) {
+    B.erase(B.begin() + B.size() - 1);
+    E.erase(E.begin() + E.size() - 1);
+    E.back() = P.size() - 1;
   }
 
   for (int w = 0; w < B.size(); w++) {
@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
 
   for (int w = 0; w < B.size(); w++) {
     if (noOutOffset) {
-      B[w] = P[B[w]];
-      E[w] = P[E[w]];
+        B[w] = P.size() > B[w] ? P.at(B[w]) : P.back();
+        E[w] = P.size() > E[w] ? P.at(E[w]) : P.back();
     } else {
       B[w] = P[B[w]] - 1;
       E[w] = P[E[w]] + 1;

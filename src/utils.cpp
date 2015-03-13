@@ -492,6 +492,8 @@ string ifile::name() {
 	return file;
 }
 
+
+
 bool ifile::open(string filename, bool binary) {
 	file = filename;
 	string ext = futils::extensionFile(filename);
