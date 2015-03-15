@@ -102,35 +102,47 @@ int main(int argc, char **argv) {
   // Building the chunks
   cout << "Building chunks" << endl;
   vector<int> B, E;
-  for (int s = 0; s < P.size(); s += window) {
+  size_t maxWindowStart = P.size();
+  if (hardChunkSizeLimit)
+    maxWindowStart = maxWindowStart - window - overlap;
+  for (size_t s = 0; s < maxWindowStart; s += window) {
     B.push_back(s);
     if (s == 0 && chunksEqualSize)
       s += overlap;
     E.push_back(s + window - 1);
   }
-  if (E.back() >= P.size())
-    E.back() = P.size() - 1;
+  if (E.back() >= P.size()) {
+    if (hardChunkSizeLimit)
+      assert(E.back() + window + 1 == P.size());
+    else
+      E.back() = P.size() - 1;
+  }
 
   if (hardChunkSizeLimit) {
-    B.back() = P.size() - window - overlap;
-    E.back() = P.size() - overlap - 1;
+    if (P.size() > overlap + window + overlap + 1) {
+      B.push_back(P.size() - window - overlap);
+      E.push_back(P.size() - overlap - 1);
+    }
   } else if ((E.back() - B.back()) < (window / 2)) {
     B.erase(B.begin() + B.size() - 1);
     E.erase(E.begin() + E.size() - 1);
     E.back() = P.size() - 1;
   }
 
+  // extend window by overlaps
   for (int w = 0; w < B.size(); w++) {
     if (B[w] > 0)
       B[w] -= overlap;
     if (E[w] < P.size() - 1)
       E[w] += overlap;
   }
+  if (hardChunkSizeLimit)
+    assert(E.back() + 1 == P.size());
 
   for (int w = 0; w < B.size(); w++) {
     if (noOutOffset) {
-        B[w] = P.size() > B[w] ? P.at(B[w]) : P.back();
-        E[w] = P.size() > E[w] ? P.at(E[w]) : P.back();
+      B[w] = P.size() > B[w] ? P.at(B[w]) : P.back();
+      E[w] = P.size() > E[w] ? P.at(E[w]) : P.back();
     } else {
       B[w] = P[B[w]] - 1;
       E[w] = P[E[w]] + 1;
